@@ -39,7 +39,10 @@ public class StringsUtil {
         for (String s : map.keySet()) {
             String line = s + " = " + map.get(s);
             if (!s.startsWith("\"")) {
-                line = "\"" + s + "\"" + " = " + "\"" + map.get(s) + "\";";
+                // 对value进行iOS .strings转义处理（单引号、双引号等）
+                String value = map.get(s).toString();
+                value = StringEscapeUtil.escapeForIOS(value);
+                line = "\"" + s + "\"" + " = " + "\"" + value + "\";";
             }
             br.write(line);
             br.newLine();

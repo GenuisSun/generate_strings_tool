@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static generator_language_config.util.ExcelUtil.ANNOTATION_FLAG;
-
 public final class XMLUtil {
     public static void writFormatXML(File file, Map<String, Object> map) {
 
@@ -28,13 +26,16 @@ public final class XMLUtil {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement("resources");
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            if (entry.getKey().contains(ANNOTATION_FLAG)) {
+            if (entry.getKey().contains(ExcelUtil.ANNOTATION_FLAG)) {
                 root.addComment(entry.getValue().toString());
                 continue;
             }
             Element element = root.addElement("string");
             element.addAttribute("name", entry.getKey());
-            element.setText(entry.getValue().toString());
+
+            // 对value进行Android XML转义处理（单引号、双引号等）
+            String escapedValue = StringEscapeUtil.escapeForAndroid(entry.getValue().toString());
+            element.setText(escapedValue);
         }
 
         // 实例化输出格式对象
@@ -69,7 +70,7 @@ public final class XMLUtil {
             short nodeType = node.getNodeType();
             switch (nodeType) {
                 case Node.COMMENT_NODE:
-                    map.put(ANNOTATION_FLAG + i, node.getText());
+                    map.put(ExcelUtil.ANNOTATION_FLAG + i, node.getText());
                     break;
                 case Node.ELEMENT_NODE:
                     Element element = (Element) node;
